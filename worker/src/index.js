@@ -313,12 +313,12 @@ function buildDiscordPayload(order, orderId) {
     },
     embeds: [
       {
-        title: "⛏️ New Ore & Gem Order",
+        title: "⛏️ New Ore & Uncut Gem Order",
         description: lines.join("\n\n").slice(0, 3900),
         color: 15247151,
         fields,
         footer: {
-          text: `Order ${orderId} · Gems include 6 matching ore each`
+          text: `Order ${orderId} · Uncut Gems include 6 matching ore each`
         },
         timestamp: new Date().toISOString()
       }
