@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Koruxa clan ore and gem ordering market.">
+
+  <title>Koruxa Ore & Gem Market</title>
+
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+  <main class="app-shell">
+
+    <!-- =====================================================
+         HERO
+    ====================================================== -->
+
+    <section class="hero">
+
+      <div class="eyebrow">
+        KORUXA MARKET
+      </div>
+
+      <h1>
+        Ore & Gem Market
+      </h1>
+
+      <p class="subtitle">
+        Build your order below and submit it when you're ready.
+      </p>
+
+      <div class="rule-banner">
+
+        <ul class="rule-list">
+          <li>
+            Every uncut gem automatically adds
+            <strong>6 matching ore</strong>
+            to the order.
+          </li>
+
+          <li>
+            Extra ore can be ordered without gems.
+          </li>
+
+          <li>
+            No individual ore or gem can exceed
+            <strong>15,000</strong>.
+          </li>
+        </ul>
+
+      </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         SEARCH
+    ====================================================== -->
+
+    <section class="toolbar">
+
+      <label class="search-wrap">
+
+        <span>⌕</span>
+
+        <input
+          id="search"
+          type="search"
+          placeholder="Search ore or gems..."
+          autocomplete="off"
+        >
+
+      </label>
+
+    </section>
+
+
+    <!-- =====================================================
+         SETUP WARNING
+    ====================================================== -->
+
+    <div
+      id="setupWarning"
+      class="setup-warning"
+      hidden
+    >
+      Discord submission is not connected yet. Fill in the Cloudflare Worker URL at the top of <strong>script.js</strong>.
+    </div>
+
+
+    <!-- =====================================================
+         MATERIAL MARKET
+    ====================================================== -->
+
+    <section
+      id="materialList"
+      class="material-list"
+    ></section>
+
+
+    <!-- =====================================================
+         BASKET / CHECKOUT
+    ====================================================== -->
+
+    <section
+      id="basket"
+      class="basket-section"
+    >
+
+      <div class="basket-header">
+
+        <div>
+
+          <div class="basket-eyebrow">
+            YOUR BASKET
+          </div>
+
+          <h2>
+            Current Order
+          </h2>
+
+        </div>
+
+        <span
+          id="cartCount"
+          class="count-pill"
+        >
+          0 items
+        </span>
+
+      </div>
+
+
+      <!-- Basket Items -->
+
+      <div
+        id="cartItems"
+        class="cart-items"
+      >
+
+        <div class="empty-cart">
+          Your basket is empty.
+        </div>
+
+      </div>
+
+
+      <!-- Total -->
+
+      <div class="total-row">
+
+        <span>
+          Order Total
+        </span>
+
+        <strong id="grandTotal">
+          0 GP
+        </strong>
+
+      </div>
+
+      <div
+        id="validationMessage"
+        class="validation-message"
+      ></div>
+
+
+      <!-- =================================================
+           CUSTOMER INFORMATION
+      ================================================== -->
+
+      <div class="checkout-divider"></div>
+
+      <div class="checkout-title">
+
+        <h3>
+          Order Information
+        </h3>
+
+        <p>
+          Enter your Discord or in-game name so your order can be identified.
+        </p>
+
+      </div>
+
+
+      <div class="customer-fields">
+
+        <label class="field">
+
+          <span>
+            Discord / Game Name
+          </span>
+
+          <input
+            id="customerName"
+            type="text"
+            maxlength="60"
+            placeholder="Example: JoyboyLuffy"
+            autocomplete="off"
+          >
+
+        </label>
+
+
+        <label class="field">
+
+          <span>
+            Order Notes
+            <small>Optional</small>
+          </span>
+
+          <textarea
+            id="orderNotes"
+            maxlength="500"
+            rows="4"
+            placeholder="Anything we should know about your order?"
+          ></textarea>
+
+        </label>
+
+        <div class="honeypot" aria-hidden="true" style="position:absolute;left:-9999px;">
+          <label>
+            Website
+            <input id="website" type="text" tabindex="-1" autocomplete="off">
+          </label>
+        </div>
+
+      </div>
+
+
+      <!-- =================================================
+           CHECKOUT BUTTONS
+      ================================================== -->
+
+      <div class="checkout-actions">
+
+        <button
+          id="clearOrder"
+          class="secondary-btn"
+          type="button"
+        >
+          Clear Basket
+        </button>
+
+        <button
+          id="submitOrder"
+          class="submit-btn"
+          type="button"
+        >
+          Submit Order
+        </button>
+
+      </div>
+
+      <div
+        id="submitStatus"
+        class="submit-status"
+        aria-live="polite"
+      ></div>
+
+    </section>
+
+  </main>
+
+
+  <!-- =====================================================
+       MATERIAL TEMPLATE
+  ====================================================== -->
+
+  <template id="materialTemplate">
+
+    <article class="material-card">
+
+      <div class="card-top">
+
+        <div class="material-icon">
+          ◆
+        </div>
+
+        <div class="material-title">
+
+          <h3></h3>
+
+          <div class="prices"></div>
+
+          <div class="required-ore-note"></div>
+
+        </div>
+
+      </div>
+
+
+      <div class="type-toggle">
+
+        <button
+          class="type-btn"
+          data-type="ore"
+          type="button"
+        >
+          Ore
+        </button>
+
+        <button
+          class="type-btn"
+          data-type="gem"
+          type="button"
+        >
+          Gem
+        </button>
+
+      </div>
+
+
+      <div class="card-bottom">
+
+        <label class="qty-label">
+
+          Quantity
+
+          <input
+            class="qty-input"
+            type="number"
+            min="1"
+            max="15000"
+            value="1"
+            inputmode="numeric"
+          >
+
+        </label>
+
+
+        <div class="line-total">
+          0 GP
+        </div>
+
+
+        <button
+          class="add-btn"
+          type="button"
+        >
+          Add
+        </button>
+
+      </div>
+
+    </article>
+
+  </template>
+
+
+  <script src="script.js"></script>
+
+</body>
+</html>
