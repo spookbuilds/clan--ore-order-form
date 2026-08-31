@@ -5,7 +5,7 @@
 // =====================================================
 
 const ORE_PER_GEM = 6;
-const MAX_ITEM_QTY = 15000;
+const MAX_ITEM_QTY = 500000;
 
 
 const API_URL = "https://koruxa-ore-gem-orders.spookbuilds.workers.dev";
