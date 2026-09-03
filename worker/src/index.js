@@ -7,7 +7,7 @@
 // =====================================================
 
 const ORE_PER_GEM = 6;
-const MAX_ITEM_QTY = 15000;
+const MAX_ITEM_QTY = 500000;
 
 
 // =====================================================
@@ -29,7 +29,7 @@ const MATERIALS = [
   { name: "Korunite", orePrice: 1350, gemName: "Astralite", gemPrice: 44000 },
   { name: "Drakonite", orePrice: 1450, gemName: "Emberstone", gemPrice: 46000 },
   { name: "Potent Void Rift", orePrice: 350, gemName: null, gemPrice: null },
-  { name: "Pyrethium", orePrice: 1550, gemName: "Magmaheart", gemPrice: 48000 },
+  { name: "Pyrethium", orePrice: 50, gemName: "Magmaheart", gemPrice: 48000 },
   { name: "Infernite", orePrice: 1650, gemName: "Pyreshard", gemPrice: 50000 }
 ];
 
