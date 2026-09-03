@@ -181,10 +181,9 @@ function validateAndPriceOrder(body) {
     const requiredOreQuantity = gemQuantity * ORE_PER_GEM;
     const totalOreQuantity = extraOreQuantity + requiredOreQuantity;
 
-    if (totalOreQuantity > MAX_ITEM_QTY) {
+    if (extraOreQuantity > MAX_ITEM_QTY) {
       return {
-        error: `${materialName} Ore cannot exceed ${formatNumber(MAX_ITEM_QTY)}. ` +
-          `${formatNumber(gemQuantity)} gems already require ${formatNumber(requiredOreQuantity)} ore.`
+        error: `${materialName} Ore cannot exceed ${formatNumber(MAX_ITEM_QTY)}.`
       };
     }
 
