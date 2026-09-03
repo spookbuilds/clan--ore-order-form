@@ -1,7 +1,7 @@
 // =====================================================
 // KORUXA ORE & GEM MARKET
 // Every Gem automatically adds 6 matching Ore.
-// No individual Ore/Gem can exceed 15,000.
+// No individual Ore/Gem can exceed 500,000.
 // =====================================================
 
 const ORE_PER_GEM = 6;
@@ -264,7 +264,7 @@ function renderMaterials() {
         qty.value = "1";
         add.textContent = selectedType === "gem"
           ? "Ore limit reached"
-          : "15k limit reached";
+          : "500k limit reached";
       } else {
         add.textContent = "Add";
 
