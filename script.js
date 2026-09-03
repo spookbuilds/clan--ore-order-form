@@ -105,24 +105,16 @@ function removeEmptyEntries() {
 
 function remainingOreCapacity(materialName) {
   const entry = getCartEntry(materialName);
-  const currentTotalOre = entry ? totalOre(entry) : 0;
+  const currentOreQty = entry?.oreQty || 0;
 
-  return Math.max(0, MAX_ITEM_QTY - currentTotalOre);
+  return Math.max(0, MAX_ITEM_QTY - currentOreQty);
 }
 
 function remainingGemCapacity(materialName) {
   const entry = getCartEntry(materialName);
   const currentGemQty = entry?.gemQty || 0;
 
-  const remainingByGemLimit = MAX_ITEM_QTY - currentGemQty;
-  const remainingByOreLimit = Math.floor(
-    remainingOreCapacity(materialName) / ORE_PER_GEM
-  );
-
-  return Math.max(
-    0,
-    Math.min(remainingByGemLimit, remainingByOreLimit)
-  );
+  return Math.max(0, MAX_ITEM_QTY - currentGemQty);
 }
 
 function saveCart() {
@@ -412,7 +404,7 @@ function getOrderProblems() {
 
     const oreTotal = totalOre(entry);
 
-    if (oreTotal > MAX_ITEM_QTY) {
+    if (entry.oreQty > MAX_ITEM_QTY) {
       problems.push(`${material.name} Ore is over the ${MAX_ITEM_QTY.toLocaleString()} limit.`);
     }
 
