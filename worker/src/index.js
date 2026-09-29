@@ -6,7 +6,7 @@
 // Store it as the Cloudflare secret DISCORD_WEBHOOK_URL.
 // =====================================================
 
-const ORE_PER_GEM = 6;
+const ORE_PER_GEM = 10;
 const MAX_ITEM_QTY = 500000;
 
 
@@ -29,8 +29,8 @@ const MATERIALS = [
   { name: "Korunite", orePrice: 1350, gemName: "Astralite", gemPrice: 44000 },
   { name: "Drakonite", orePrice: 1450, gemName: "Emberstone", gemPrice: 46000 },
   { name: "Potent Void Rift", orePrice: 350, gemName: null, gemPrice: null },
-  { name: "Pyrethium", orePrice: 50, gemName: "Magmaheart", gemPrice: 48000 },
-  { name: "Infernite", orePrice: 1650, gemName: "Pyreshard", gemPrice: 50000 }
+  { name: "Pyrethium", orePrice: 5000, gemName: "Magmaheart", gemPrice: 48000 },
+  { name: "Infernite", orePrice: 35000, gemName: "Pyreshard", gemPrice: 50000 }
 ];
 
 const MATERIAL_BY_NAME = new Map(
@@ -317,7 +317,7 @@ function buildDiscordPayload(order, orderId) {
         color: 15247151,
         fields,
         footer: {
-          text: `Order ${orderId} · Uncut Gems include 6 matching ore each`
+          text: `Order ${orderId} · Uncut Gems include 10 matching ore each`
         },
         timestamp: new Date().toISOString()
       }
