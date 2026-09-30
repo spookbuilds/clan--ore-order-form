@@ -96,14 +96,14 @@ function ensureCartEntry(materialName) {
   return entry;
 }
 
-function orePerGem(gemQty) {
-  return gemQty > HIGH_QTY_GEM_THRESHOLD
-    ? HIGH_QTY_ORE_PER_GEM
-    : BASE_ORE_PER_GEM;
-}
-
 function requiredOreForGemQty(gemQty) {
-  return gemQty * orePerGem(gemQty);
+  const baseQty = Math.min(gemQty, HIGH_QTY_GEM_THRESHOLD);
+  const highQty = Math.max(0, gemQty - HIGH_QTY_GEM_THRESHOLD);
+
+  return (
+    (baseQty * BASE_ORE_PER_GEM) +
+    (highQty * HIGH_QTY_ORE_PER_GEM)
+  );
 }
 
 function requiredOre(entry) {
@@ -236,9 +236,9 @@ function renderMaterials() {
         `;
 
         requirement.textContent =
-          `1–${HIGH_QTY_GEM_THRESHOLD.toLocaleString("en-GB")} ${material.gemName}: ` +
+          `First ${HIGH_QTY_GEM_THRESHOLD.toLocaleString("en-GB")} ${material.gemName}: ` +
           `${BASE_ORE_PER_GEM} ${material.name} Ore each. ` +
-          `${(HIGH_QTY_GEM_THRESHOLD + 1).toLocaleString("en-GB")}+: ` +
+          `Any above ${HIGH_QTY_GEM_THRESHOLD.toLocaleString("en-GB")}: ` +
           `${HIGH_QTY_ORE_PER_GEM} Ore each.`;
       } else {
         title.textContent = material.name;
@@ -492,7 +492,8 @@ function renderCart() {
 
     const forcedOre = requiredOre(entry);
     const oreTotal = totalOre(entry);
-    const currentOrePerGem = orePerGem(entry.gemQty);
+    const excessGemQty =
+      Math.max(0, entry.gemQty - HIGH_QTY_GEM_THRESHOLD);
 
     if (oreTotal > 0) {
       const row = document.createElement("div");
@@ -501,18 +502,25 @@ function renderCart() {
       let oreMeta = `${oreTotal.toLocaleString("en-GB")} × ${gp(material.orePrice)}`;
       let requiredText = "";
 
-      if (forcedOre > 0) {
-        if (entry.oreQty > 0) {
+    if (forcedOre > 0) {
+      const tierText =
+        entry.gemQty > HIGH_QTY_GEM_THRESHOLD
+          ? `first ${HIGH_QTY_GEM_THRESHOLD.toLocaleString("en-GB")} @ ${BASE_ORE_PER_GEM} ore each + ${excessGemQty.toLocaleString("en-GB")} @ ${HIGH_QTY_ORE_PER_GEM} ore each`
+          : `${BASE_ORE_PER_GEM} ore each`;
+
+      if (entry.oreQty > 0) {
         requiredText =
           `${entry.oreQty.toLocaleString("en-GB")} extra + ` +
           `${forcedOre.toLocaleString("en-GB")} required by ` +
           `${entry.gemQty.toLocaleString("en-GB")} ${material.gemName} ` +
-          `(${currentOrePerGem} ore each)`;        } else {
-          requiredText =
-            `${forcedOre.toLocaleString("en-GB")} required by ` +
-            `${entry.gemQty.toLocaleString("en-GB")} ${material.gemName} ` +
-            `(${currentOrePerGem} ore each)`;        }
+          `(${tierText})`;
+      } else {
+        requiredText =
+          `${forcedOre.toLocaleString("en-GB")} required by ` +
+          `${entry.gemQty.toLocaleString("en-GB")} ${material.gemName} ` +
+          `(${tierText})`;
       }
+    }
 
       row.innerHTML = `
         <div>

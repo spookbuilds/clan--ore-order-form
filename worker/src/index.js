@@ -181,13 +181,18 @@ function validateAndPriceOrder(body) {
       return { error: `${materialName} does not have a gem available.` };
     }
 
-    const orePerGem =
-      gemQuantity > HIGH_QTY_GEM_THRESHOLD
-        ? HIGH_QTY_ORE_PER_GEM
-        : BASE_ORE_PER_GEM;
+  const baseGemQuantity =
+    Math.min(gemQuantity, HIGH_QTY_GEM_THRESHOLD);
 
-    const requiredOreQuantity = gemQuantity * orePerGem;
-    const totalOreQuantity = extraOreQuantity + requiredOreQuantity;
+  const highQtyGemQuantity =
+    Math.max(0, gemQuantity - HIGH_QTY_GEM_THRESHOLD);
+
+  const requiredOreQuantity =
+    (baseGemQuantity * BASE_ORE_PER_GEM) +
+    (highQtyGemQuantity * HIGH_QTY_ORE_PER_GEM);
+
+  const totalOreQuantity =
+    extraOreQuantity + requiredOreQuantity;
 
     if (extraOreQuantity > MAX_ITEM_QTY) {
       return {
@@ -220,7 +225,8 @@ function validateAndPriceOrder(body) {
       orePrice: material.orePrice,
       extraOreQuantity,
       requiredOreQuantity,
-      orePerGem,
+      baseGemQuantity,
+      highQtyGemQuantity,
       totalOreQuantity,
       gemName: material.gemName,
       gemPrice: material.gemPrice,
@@ -264,19 +270,31 @@ function buildDiscordPayload(order, orderId) {
         `⛏️ **${formatNumber(group.totalOreQuantity)} × ${group.material} Ore**\n` +
         `↳ ${formatNumber(group.orePrice)} each · **${formatNumber(group.oreTotal)}**`;
 
-      if (group.requiredOreQuantity > 0) {
-        if (group.extraOreQuantity > 0) {
-          oreLine +=
-            `\n↳ ${formatNumber(group.extraOreQuantity)} extra + ` +
-                `${formatNumber(group.requiredOreQuantity)} required for ` +
-                `${formatNumber(group.gemQuantity)} ${group.gemName} ` +
-                `(${formatNumber(group.orePerGem)} ore each)`;
-        } else {
-          oreLine +=
-            `\n↳ ${formatNumber(group.requiredOreQuantity)} required for ` +
-            `${formatNumber(group.gemQuantity)} ${group.gemName}`;
-        }
+    if (group.requiredOreQuantity > 0) {
+      let tierText;
+
+      if (group.highQtyGemQuantity > 0) {
+        tierText =
+          `${formatNumber(group.baseGemQuantity)} @ ${BASE_ORE_PER_GEM} ore each + ` +
+          `${formatNumber(group.highQtyGemQuantity)} @ ${HIGH_QTY_ORE_PER_GEM} ore each`;
+      } else {
+        tierText =
+          `${formatNumber(group.baseGemQuantity)} @ ${BASE_ORE_PER_GEM} ore each`;
       }
+
+      if (group.extraOreQuantity > 0) {
+        oreLine +=
+          `\n↳ ${formatNumber(group.extraOreQuantity)} extra + ` +
+          `${formatNumber(group.requiredOreQuantity)} required for ` +
+          `${formatNumber(group.gemQuantity)} ${group.gemName}\n` +
+          `↳ ${tierText}`;
+      } else {
+        oreLine +=
+          `\n↳ ${formatNumber(group.requiredOreQuantity)} required for ` +
+          `${formatNumber(group.gemQuantity)} ${group.gemName}\n` +
+          `↳ ${tierText}`;
+      }
+    }
 
       lines.push(oreLine);
     }
@@ -327,8 +345,7 @@ function buildDiscordPayload(order, orderId) {
         color: 15247151,
         fields,
         footer: {
-          text: `Order ${orderId} · 1–4,000 gems: 50 ore each · 4,001+ gems: 100 ore each`
-        },
+        text: `Order ${orderId} · First 4,000 gems: 50 ore each · Gems over 4,000: 100 ore each`        },
         timestamp: new Date().toISOString()
       }
     ]
