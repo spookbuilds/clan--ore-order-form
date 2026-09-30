@@ -4,7 +4,10 @@
 // No individual Ore/Gem can exceed 500,000.
 // =====================================================
 
-const ORE_PER_GEM = 50;
+const BASE_ORE_PER_GEM = 50;
+const HIGH_QTY_ORE_PER_GEM = 100;
+const HIGH_QTY_GEM_THRESHOLD = 4000;
+
 const MAX_ITEM_QTY = 500000;
 
 
@@ -15,7 +18,9 @@ const API_URL = "https://koruxa-ore-gem-orders.spookbuilds.workers.dev";
 // STATE
 //
 // oreQty = EXTRA ore the player chose themselves.
-// Required gem ore is calculated separately as gemQty * 50.
+// Required gem ore is calculated separately.
+// 1–4,000 gems = 50 matching ore each.
+// 4,001+ gems = 100 matching ore each.
 // =====================================================
 
 const state = {
@@ -91,8 +96,18 @@ function ensureCartEntry(materialName) {
   return entry;
 }
 
+function orePerGem(gemQty) {
+  return gemQty > HIGH_QTY_GEM_THRESHOLD
+    ? HIGH_QTY_ORE_PER_GEM
+    : BASE_ORE_PER_GEM;
+}
+
+function requiredOreForGemQty(gemQty) {
+  return gemQty * orePerGem(gemQty);
+}
+
 function requiredOre(entry) {
-  return entry.gemQty * ORE_PER_GEM;
+  return requiredOreForGemQty(entry.gemQty);
 }
 
 function totalOre(entry) {
@@ -221,7 +236,10 @@ function renderMaterials() {
         `;
 
         requirement.textContent =
-          `Each ${material.gemName} automatically adds ${ORE_PER_GEM} ${material.name} Ore.`;
+          `1–${HIGH_QTY_GEM_THRESHOLD.toLocaleString("en-GB")} ${material.gemName}: ` +
+          `${BASE_ORE_PER_GEM} ${material.name} Ore each. ` +
+          `${(HIGH_QTY_GEM_THRESHOLD + 1).toLocaleString("en-GB")}+: ` +
+          `${HIGH_QTY_ORE_PER_GEM} Ore each.`;
       } else {
         title.textContent = material.name;
 
@@ -282,10 +300,29 @@ function renderMaterials() {
       const amount = clamp(qty.value, 1, max);
 
       if (selectedType === "gem") {
-        const gemCost = material.gemPrice * amount;
-        const forcedOreCost = material.orePrice * amount * ORE_PER_GEM;
+        const existingGemQty =
+          getCartEntry(material.name)?.gemQty || 0;
 
-        lineTotal.textContent = gp(gemCost + forcedOreCost);
+        const newGemQty =
+          existingGemQty + amount;
+
+        const oreBefore =
+          requiredOreForGemQty(existingGemQty);
+
+        const oreAfter =
+          requiredOreForGemQty(newGemQty);
+
+        const additionalRequiredOre =
+          oreAfter - oreBefore;
+
+        const gemCost =
+          material.gemPrice * amount;
+
+        const forcedOreCost =
+          material.orePrice * additionalRequiredOre;
+
+        lineTotal.textContent =
+          gp(gemCost + forcedOreCost);
       } else {
         lineTotal.textContent = gp(material.orePrice * amount);
       }
@@ -455,6 +492,7 @@ function renderCart() {
 
     const forcedOre = requiredOre(entry);
     const oreTotal = totalOre(entry);
+    const currentOrePerGem = orePerGem(entry.gemQty);
 
     if (oreTotal > 0) {
       const row = document.createElement("div");
@@ -465,10 +503,15 @@ function renderCart() {
 
       if (forcedOre > 0) {
         if (entry.oreQty > 0) {
-          requiredText = `${entry.oreQty.toLocaleString("en-GB")} extra + ${forcedOre.toLocaleString("en-GB")} required by ${entry.gemQty.toLocaleString("en-GB")} ${material.gemName}`;
-        } else {
-          requiredText = `${forcedOre.toLocaleString("en-GB")} required by ${entry.gemQty.toLocaleString("en-GB")} ${material.gemName}`;
-        }
+        requiredText =
+          `${entry.oreQty.toLocaleString("en-GB")} extra + ` +
+          `${forcedOre.toLocaleString("en-GB")} required by ` +
+          `${entry.gemQty.toLocaleString("en-GB")} ${material.gemName} ` +
+          `(${currentOrePerGem} ore each)`;        } else {
+          requiredText =
+            `${forcedOre.toLocaleString("en-GB")} required by ` +
+            `${entry.gemQty.toLocaleString("en-GB")} ${material.gemName} ` +
+            `(${currentOrePerGem} ore each)`;        }
       }
 
       row.innerHTML = `
@@ -566,8 +609,11 @@ function renderCart() {
   } else if (state.cart.some(entry => entry.gemQty > 0)) {
     validationMessage.className = "validation-message ok";
     validationMessage.textContent =
-      `✓ Gem requirement included automatically: ${ORE_PER_GEM} matching ore per gem.`;
-  } else {
+      `✓ Gem ore included automatically: ` +
+      `1–${HIGH_QTY_GEM_THRESHOLD.toLocaleString("en-GB")} gems = ` +
+      `${BASE_ORE_PER_GEM} ore each · ` +
+      `${(HIGH_QTY_GEM_THRESHOLD + 1).toLocaleString("en-GB")}+ = ` +
+      `${HIGH_QTY_ORE_PER_GEM} ore each.`;  } else {
     validationMessage.className = "validation-message";
     validationMessage.textContent = "";
   }

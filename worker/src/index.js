@@ -6,7 +6,10 @@
 // Store it as the Cloudflare secret DISCORD_WEBHOOK_URL.
 // =====================================================
 
-const ORE_PER_GEM = 50;
+const BASE_ORE_PER_GEM = 50;
+const HIGH_QTY_ORE_PER_GEM = 100;
+const HIGH_QTY_GEM_THRESHOLD = 4000;
+
 const MAX_ITEM_QTY = 500000;
 
 
@@ -178,7 +181,12 @@ function validateAndPriceOrder(body) {
       return { error: `${materialName} does not have a gem available.` };
     }
 
-    const requiredOreQuantity = gemQuantity * ORE_PER_GEM;
+    const orePerGem =
+      gemQuantity > HIGH_QTY_GEM_THRESHOLD
+        ? HIGH_QTY_ORE_PER_GEM
+        : BASE_ORE_PER_GEM;
+
+    const requiredOreQuantity = gemQuantity * orePerGem;
     const totalOreQuantity = extraOreQuantity + requiredOreQuantity;
 
     if (extraOreQuantity > MAX_ITEM_QTY) {
@@ -212,6 +220,7 @@ function validateAndPriceOrder(body) {
       orePrice: material.orePrice,
       extraOreQuantity,
       requiredOreQuantity,
+      orePerGem,
       totalOreQuantity,
       gemName: material.gemName,
       gemPrice: material.gemPrice,
@@ -259,8 +268,9 @@ function buildDiscordPayload(order, orderId) {
         if (group.extraOreQuantity > 0) {
           oreLine +=
             `\n↳ ${formatNumber(group.extraOreQuantity)} extra + ` +
-            `${formatNumber(group.requiredOreQuantity)} required for ` +
-            `${formatNumber(group.gemQuantity)} ${group.gemName}`;
+                `${formatNumber(group.requiredOreQuantity)} required for ` +
+                `${formatNumber(group.gemQuantity)} ${group.gemName} ` +
+                `(${formatNumber(group.orePerGem)} ore each)`;
         } else {
           oreLine +=
             `\n↳ ${formatNumber(group.requiredOreQuantity)} required for ` +
@@ -317,7 +327,7 @@ function buildDiscordPayload(order, orderId) {
         color: 15247151,
         fields,
         footer: {
-          text: `Order ${orderId} · Uncut Gems include 50 matching ore each`
+          text: `Order ${orderId} · 1–4,000 gems: 50 ore each · 4,001+ gems: 100 ore each`
         },
         timestamp: new Date().toISOString()
       }
