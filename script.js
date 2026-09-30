@@ -1,10 +1,10 @@
 // =====================================================
 // KORUXA ORE & GEM MARKET
-// Every Gem automatically adds 10 matching Ore.
+// Every Gem automatically adds 50 matching Ore.
 // No individual Ore/Gem can exceed 500,000.
 // =====================================================
 
-const ORE_PER_GEM = 10;
+const ORE_PER_GEM = 50;
 const MAX_ITEM_QTY = 500000;
 
 
@@ -15,7 +15,7 @@ const API_URL = "https://koruxa-ore-gem-orders.spookbuilds.workers.dev";
 // STATE
 //
 // oreQty = EXTRA ore the player chose themselves.
-// Required gem ore is calculated separately as gemQty * 10.
+// Required gem ore is calculated separately as gemQty * 50.
 // =====================================================
 
 const state = {
